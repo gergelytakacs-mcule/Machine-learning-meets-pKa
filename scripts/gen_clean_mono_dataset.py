@@ -385,7 +385,15 @@ def run_molvs_tautomers(df: pd.DataFrame) -> pd.DataFrame:
     uc = Uncharger()
     tc = TautomerCanonicalizer(max_tautomers=1000)  # Default is 1000
     for ix in df.index:
-        df.loc[ix, 'ROMol'] = check_sanitization(tc.canonicalize(uc.uncharge(df.loc[ix, 'ROMol'])))
+        sanitize_check = None
+        try:
+            canonicalized = tc.canonicalize(uc.uncharge(df.loc[ix, 'ROMol']))
+        except Chem.KekulizeException:
+            pass
+        else:
+            sanitize_check = check_sanitization(canonicalized)
+        df.loc[ix, 'ROMol'] = sanitize_check
+
     df.dropna(subset=['ROMol'], inplace=True)
     return df
 

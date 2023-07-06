@@ -1,3 +1,4 @@
+import gzip
 import pickle as pkl
 from argparse import ArgumentParser
 
@@ -23,6 +24,7 @@ parser = ArgumentParser()
 parser.add_argument('sdf', metavar='INPUT_SDF', type=valid_file)
 parser.add_argument('out', metavar='OUTPUT_PATH')
 parser.add_argument('--no-openeye', '-noe', action='store_true')
+parser.add_argument('--trained-model', type=str, help='Trained AI model as .pkl file.')
 args = parser.parse_args()
 
 print('Loading SDF...')
@@ -39,7 +41,9 @@ except ValueError:
 print(f'{len(df)} molecules loaded')
 
 print('Loading model...')
-with open('RF_CV_FMorgan3_pKa.pkl', 'rb') as f:
+model_file = args.trained_model
+model_open_func = gzip.open if model_file.endswith('.gz') else open
+with model_open_func(model_file, 'rb') as f:
     model = pkl.load(f)
 
 print('Start preparing dataset...')

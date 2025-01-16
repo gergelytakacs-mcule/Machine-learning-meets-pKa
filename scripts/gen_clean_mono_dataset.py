@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import PandasTools, SaltRemover, Descriptors, Lipinski, Crippen, Mol
-from rdkit.Chem.MolStandardize.standardize import TautomerCanonicalizer, Uncharger
+from rdkit.Chem.MolStandardize.rdMolStandardize import Uncharger, TautomerEnumerator
 
 __author__ = 'Marcel Baltruschat'
 __copyright__ = 'Copyright © 2020-2023'
@@ -383,11 +383,11 @@ def run_molvs_tautomers(df: pd.DataFrame) -> pd.DataFrame:
         DataFrame with tautomer canonized and uncharged structures
     """
     uc = Uncharger()
-    tc = TautomerCanonicalizer(max_tautomers=1000)  # Default is 1000
+    tc = TautomerEnumerator()  # Default was max_tautomers=1000
     for ix in df.index:
         sanitize_check = None
         try:
-            canonicalized = tc.canonicalize(uc.uncharge(df.loc[ix, 'ROMol']))
+            canonicalized = tc.Canonicalize(uc.uncharge(df.loc[ix, 'ROMol']))
         except Chem.KekulizeException:
             pass
         else:
